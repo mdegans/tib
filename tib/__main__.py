@@ -149,7 +149,14 @@ def cli_main(argv=None):
         epilog='FIXME(mdegans): add examples here',
     )
 
+    ap.add_argument('board',
+        default='nano',
+        choices=('nano', 'nx'),
+        help='board to build an image for',
+    )
+
     ap.add_argument('-v','--verbose',
+        default=0,
         type=int,
         choices=range(0, 3),
         help='logging level',
@@ -168,11 +175,6 @@ def cli_main(argv=None):
     ap.add_argument('-m', '--mem',
         default='8G',
         help="memory use cap for VM",
-    )
-
-    ap.add_argument('-b', '--board',
-        choices=('nano', 'nx'),
-        help='board to build an image for',
     )
 
     ap.add_argument('-r', '--revision',
