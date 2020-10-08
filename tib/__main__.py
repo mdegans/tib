@@ -27,6 +27,17 @@ APPLY_BINARIES=f'{L4T_PATH}/apply_binaries.sh'
 IMAGE_OUT=f'{HOME}/sdcard.img'
 SOURCE_DIR=f'{L4T_PATH}/source'
 KERNEL_PATCH_DIR=f'/tmp/kernel_patches'
+EXAMPLES="""Examples:
+
+Building a more or less stock SD card image:
+  tib nano (or) tib nx
+
+Building with some custom kernel patches and enable them in an interactive menu:
+  tib nano --patches camera.patch pwm.patch --menuconfig
+
+Customize the kernel using menuconfig:
+  tib nano --menuconfig
+"""
 
 def main(scripts: Sequence[str],
          patches: Iterable[Path],
@@ -143,10 +154,15 @@ def cli_main(argv=None):
     """
     import argparse
 
+    class Formatter(
+        argparse.ArgumentDefaultsHelpFormatter,
+        argparse.RawTextHelpFormatter):
+        pass
+
     ap = argparse.ArgumentParser(
         description='Create a custom, flashable, Tegra SD Card image',
-        # formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        epilog='FIXME(mdegans): add examples here',
+        formatter_class=Formatter,
+        epilog=EXAMPLES,
     )
 
     ap.add_argument('board',
