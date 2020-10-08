@@ -144,13 +144,9 @@ def main(scripts: Sequence[str],
     return 0
 
 
-def cli_main(argv=None):
+def cli_main():
     """
     Command line entrypoint
-
-    Args:
-        argv (`list` of `str`): override command line for testing
-            Defaults to `sys.argv`
     """
     import argparse
 
@@ -231,7 +227,7 @@ def cli_main(argv=None):
         action='store_true',
     )
 
-    kwargs = vars(ap.parse_args(argv))
+    kwargs = vars(ap.parse_args())
 
     # configure logging
     fh = logging.FileHandler(kwargs['log_file'])
