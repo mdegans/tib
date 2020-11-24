@@ -89,7 +89,8 @@ def main(scripts: Sequence[str],
     # TODO(mdegans): add more runners, such as WLS2
     runner_cls = tib.runner.MultipassRunner
     with runner_cls(verbose=verbose,
-                    no_cleanup=no_cleanup) as runner:
+                    no_cleanup=no_cleanup,
+                    mem=mem) as runner:
         # run most scripts, including user scripts
         for script, args in scripts:
             runner.run_script(script, *args).check_returncode()
