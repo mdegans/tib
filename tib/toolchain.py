@@ -43,11 +43,11 @@ from typing import (
 logger = logging.getLogger(__name__)
 
 __all__ = [
-    'get_cross_prefix',
-    'install_from_tarball',
+    "get_cross_prefix",
+    "install_from_tarball",
 ]
 
-DEFAULT_PREFIX = '/usr/local'
+DEFAULT_PREFIX = "/usr/local"
 URL_32 = "https://releases.linaro.org/components/toolchain/binaries/7.3-2018.05/aarch64-linux-gnu/gcc-linaro-7.3.1-2018.05-i686_aarch64-linux-gnu.tar.xz"
 MD5_32 = "https://releases.linaro.org/components/toolchain/binaries/7.3-2018.05/aarch64-linux-gnu/gcc-linaro-7.3.1-2018.05-i686_aarch64-linux-gnu.tar.xz.asc"
 URL_64 = "https://releases.linaro.org/components/toolchain/binaries/7.3-2018.05/aarch64-linux-gnu/gcc-linaro-7.3.1-2018.05-x86_64_aarch64-linux-gnu.tar.xz"
@@ -65,7 +65,8 @@ def get_url_md5() -> Tuple[str, str]:
         logger.debug("Detected x86_64.")
         return (URL_64, MD5_64)
     raise RuntimeError(
-        "Unsupported architecture. Only x86 and x86-64 currently supported.")
+        "Unsupported architecture. Only x86 and x86-64 currently supported."
+    )
 
 
 def get_cross_prefix() -> Optional[str]:
@@ -76,8 +77,8 @@ def get_cross_prefix() -> Optional[str]:
         return
     logger.debug(f"Found gcc cross compiler at {gcc}")
     cross_prefix = os.path.join(
-        os.path.dirname(shutil.which(f"aarch64-linux-gnu-gcc")),
-        f"aarch64-linux-gnu-")
+        os.path.dirname(shutil.which(f"aarch64-linux-gnu-gcc")), f"aarch64-linux-gnu-"
+    )
     return cross_prefix
 
 
@@ -107,7 +108,8 @@ def install_from_tarball(prefix: os.PathLike) -> str:
     with tempfile.TemporaryDirectory() as extract_dir:
         logger.info("Downloading and verifying toolchain...")
         member_list = extract(
-            url, extract_dir,
+            url,
+            extract_dir,
             hasher=hashlib.md5,
             hexdigest=hexdigest,
         )
@@ -136,12 +138,14 @@ def main(prefix=None) -> int:
 
 def cli_main() -> int:
     import argparse
+
     ap = argparse.ArgumentParser(
-        description='toolchain install script',
+        description="toolchain install script",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
-    ap.add_argument('--prefix',
+    ap.add_argument(
+        "--prefix",
         help="install prefix for recommended linaro tarball",
         default=DEFAULT_PREFIX,
     )
@@ -150,6 +154,7 @@ def cli_main() -> int:
     return main(**cli_common(ap))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
+
     sys.exit(cli_main())
