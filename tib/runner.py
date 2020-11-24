@@ -168,6 +168,8 @@ class MultipassRunner(contextlib.AbstractContextManager):
                 # piping through stdin is necessary because of snap isolation
                 # in linux and a transfer issue:
                 # https://github.com/canonical/multipass/issues/1783
+                # and they broke this on the latest version of multipass
+                # FML. Maybe it still works on Windows.
                 command = (self._multipass, "transfer", "-", dest)
                 tib.utils.run(command, stdin=f, **kwargs).check_returncode()
 
