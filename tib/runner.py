@@ -95,7 +95,7 @@ class MultipassRunner(contextlib.AbstractContextManager):
             logger.error(
                 "Error starting VM. Check output of multipass command. "
                 "Often, the VM may already exist. "
-                "Try 'multipass delete --purge tib-builder' "
+                "Try 'multipass delete --purge tib' "
                 "and then try again."
             )
             raise
