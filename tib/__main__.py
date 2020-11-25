@@ -75,7 +75,7 @@ def main(
         # the rootfs script
         (
             os.path.join(tib.runner.THIS_DIR, "download_rootfs.sh"),
-            (board,),
+            (board, "--install-key" if patches or menuconfig else "--no-key"),
         ),
         # the kernel download script
         (
