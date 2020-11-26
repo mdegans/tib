@@ -73,4 +73,4 @@ function main() {
   esac
 }
 
-main $1
+main $1 $2
