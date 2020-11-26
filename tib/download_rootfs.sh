@@ -44,7 +44,7 @@ function setup() {
   sudo tar -I lbzip2 -xpf rootfs.tbz2 -C ~/Linux_for_Tegra/rootfs
   echo "Rootfs tarball sucessfully extracted."
   rm rootfs.tbz2
-  if [ "$2" == "--install-key"]; then
+  if [ "$2" == "--install-key" ]; then
     echo "Getting apt key"
     download $KEY_BSP_URI $KEY_BSP_SHA jetson-ota-public.asc
     echo "Installing apt key in rootfs."
