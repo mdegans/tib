@@ -59,8 +59,7 @@ __all__ = [
     "build",
 ]
 
-USER_HOME = os.path.expanduser("~")
-L4T_PATH = os.path.join(USER_HOME, "Linux_for_Tegra")
+L4T_PATH = os.path.join(os.getcwd(), "Linux_for_Tegra")
 KERNEL_TARBALL = os.path.join(L4T_PATH, "source", "public", "kernel_src.tbz2")
 DEFAULT_LOCALVERSION = "-tib"
 # this should never need to change on Tegra, but if you want to use this code
