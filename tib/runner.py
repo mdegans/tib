@@ -164,14 +164,7 @@ class MultipassRunner(contextlib.AbstractContextManager):
         dest = f"{self._name}:{args[-1]}"
         logger.debug(f"copying {sources} to {dest}")
         for source in sources:
-            with open(os.path.abspath(source)) as f:
-                # piping through stdin is necessary because of snap isolation
-                # in linux and a transfer issue:
-                # https://github.com/canonical/multipass/issues/1783
-                # and they broke this on the latest version of multipass
-                # FML. Maybe it still works on Windows.
-                command = (self._multipass, "transfer", "-", dest)
-                tib.utils.run(command, stdin=f, **kwargs).check_returncode()
+            tib.utils.run((self._multipass, "transfer", source, dest))
 
     def transfer_from(self, *args: Iterable[Path], **kwargs):
         args = list(args)
@@ -208,5 +201,5 @@ if __name__ == "__main__":
             # test kwargs work
             cp = runner.run_script(script, *args, stdout=subprocess.PIPE)
             # we should be echoed the same args we passed in by the
-            assert " ".join(args) in cp.stdout
+            assert " ".join(args).encode() in cp.stdout
             cp.check_returncode()
