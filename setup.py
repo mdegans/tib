@@ -9,7 +9,7 @@ with open(os.path.join(THIS_DIR, 'README.md')) as readme:
 
 setuptools.setup(
     name='tib',
-    version='0.1.0',
+    version='0.1.1',
     description='Create NVIDIA Tegra SD card images on any platform.',
     long_description=long_description,
     long_description_content_type='text/markdown',

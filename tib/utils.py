@@ -46,27 +46,28 @@ from typing import (
     TYPE_CHECKING,
     Union,
 )
+
 if TYPE_CHECKING:
     from argparse import ArgumentParser
 else:
     ArgumentParser = None
 
 __all__ = [
-    'chmod',
-    'cli_common',
-    'copy',
-    'download',
-    'ensure_sudo',
-    'extract',
-    'join_and_check',
-    'makedirs',
-    'move',
-    'real_username',
-    'remove',
-    'rename',
-    'run',
-    'verify',
-    'yes_or_no',
+    "chmod",
+    "cli_common",
+    "copy",
+    "download",
+    "ensure_sudo",
+    "extract",
+    "join_and_check",
+    "makedirs",
+    "move",
+    "real_username",
+    "remove",
+    "rename",
+    "run",
+    "verify",
+    "yes_or_no",
 ]
 
 
@@ -75,18 +76,16 @@ logger = logging.getLogger(__name__)
 
 def real_username() -> str:
     """:returns: the real username running the script"""
-    return os.environ['SUDO_USER'] \
-        if "SUDO_USER" in os.environ \
-        else getpass.getuser()
+    return os.environ["SUDO_USER"] if "SUDO_USER" in os.environ else getpass.getuser()
 
 
 def yes_or_no(input_text) -> bool:
     """prompts for a yes or no choices for |input_text|.
     :returns: true if yes, false if no"""
     choice = ""
-    while not choice.startswith(('y', 'n')):
+    while not choice.startswith(("y", "n")):
         choice = input(f"{input_text} (y/n)").lower()
-    return True if choice.startswith('y') else False
+    return True if choice.startswith("y") else False
 
 
 def chdir(path):
@@ -111,6 +110,7 @@ def copy(src, dest, **kwargs):
     """wraps shutil.copy() and logs to debug level"""
     logger.debug(f"copying {src} to {dest}")
     return shutil.copy(src, dest, **kwargs)
+
 
 def remove(path):
     """wraps os.remove() (or os.rmdir) and logs to debug level
@@ -163,17 +163,17 @@ def patch(*patches, at_path=None):
     """
     if not at_path:
         at_path = os.getcwd()
-    patchdir = os.path.join(at_path, 'patches')
+    patchdir = os.path.join(at_path, "patches")
     makedirs(patchdir, exist_ok=True)
-    series = os.path.join(patchdir, 'series')
-    with open(series, 'a') as series_file:
+    series = os.path.join(patchdir, "series")
+    with open(series, "a") as series_file:
         for patch in patches:
             basename = os.path.basename(patch)
             logger.debug(f"Adding patch: {basename} to {patchdir}")
             copy(patch, patchdir)
-            series_file.write(basename + '\n')
+            series_file.write(basename + "\n")
     logger.info("Applying patches.")
-    run(('quilt', 'push')).check_returncode()
+    run(("quilt", "push")).check_returncode()
 
 
 def join_and_check(path, *paths: Iterable[str]) -> str:
@@ -181,21 +181,24 @@ def join_and_check(path, *paths: Iterable[str]) -> str:
     path = os.path.join(path, *paths)
     if not os.path.exists(path):
         raise FileNotFoundError(
-            f"{os.path.join(*paths)} not found in {path}.")  # pylint: disable=no-value-for-parameter
+            f"{os.path.join(*paths)} not found in {path}."
+        )  # pylint: disable=no-value-for-parameter
     return path
 
 
-def mount(source, target,
-          type_: Optional[str] = None,
-          options: Optional[Iterable[str]] = None,
-          ) -> subprocess.CompletedProcess:
+def mount(
+    source,
+    target,
+    type_: Optional[str] = None,
+    options: Optional[Iterable[str]] = None,
+) -> subprocess.CompletedProcess:
     logger.info(f"Mounting {target}")
-    command = ['mount']
+    command = ["mount"]
     if type_:
-        command.extend(('-t', str(type_)))
+        command.extend(("-t", str(type_)))
     if options:
-        command.append('-o')
-        command.append(','.join(sorted(options)))
+        command.append("-o")
+        command.append(",".join(sorted(options)))
     command.extend((source, target))
     return run(command)
 
@@ -207,7 +210,7 @@ def umount(target) -> subprocess.CompletedProcess:
     :return: subprocess.CompletedProcess of the unmount command
     """
     logger.info(f"Unmounting: {target}")
-    return run(('umount', target))
+    return run(("umount", target))
 
 
 def ensure_sudo() -> str:
@@ -219,18 +222,19 @@ def ensure_sudo() -> str:
     uid = os.getuid()  # pylint: disable=no-member
     if username == "root":
         # this could happen with sudo su, for example
-        raise EnvironmentError(
-            "Could not look up SUDO_USER")
+        raise EnvironmentError("Could not look up SUDO_USER")
     if uid != 0:
         raise PermissionError("this script needs sudo")
     return username
 
 
-def download(url: Text,
-             path: str,
-             hexdigest: Optional[str] = None,
-             hasher: Optional[Callable[[bytes], Any]] = None,
-             chunk_size=2**20) -> Text:
+def download(
+    url: Text,
+    path: str,
+    hexdigest: Optional[str] = None,
+    hasher: Optional[Callable[[bytes], Any]] = None,
+    chunk_size=2 ** 20,
+) -> Text:
     """
     Downloads a file at |url| to |path|.
     :arg url: as str, bytes
@@ -253,7 +257,7 @@ def download(url: Text,
         logger.debug(f"Using {hasher.name} to verify download.")
         logger.debug(f"Expecting hex digest: {hexdigest}")
 
-    with urllib.request.urlopen(url) as response, open(local_dest, 'wb') as f:
+    with urllib.request.urlopen(url) as response, open(local_dest, "wb") as f:
         chunk = response.read(chunk_size)
         while chunk:
             f.write(chunk)
@@ -273,11 +277,13 @@ def download(url: Text,
 
 
 # noinspection PyPep8Naming
-def extract(file_or_url: str,
-            path: str,
-            hexdigest: Optional[str] = None,
-            hasher: Optional[Callable] = None,
-            **kwargs) -> Union[List[zipfile.ZipInfo], List[tarfile.TarInfo]]:
+def extract(
+    file_or_url: str,
+    path: str,
+    hexdigest: Optional[str] = None,
+    hasher: Optional[Callable] = None,
+    **kwargs,
+) -> Union[List[zipfile.ZipInfo], List[tarfile.TarInfo]]:
     """
     (Downloads) and extracts a file or url to path.
     :param file_or_url: file or url to extract
@@ -288,36 +294,36 @@ def extract(file_or_url: str,
     :returns: an archive file member list
     """
 
-    if file_or_url.endswith('.zip'):
+    if file_or_url.endswith(".zip"):
         ArkFile = zipfile.ZipFile
-    elif file_or_url.endswith(('tar.gz', 'tar.bz2', 'tar.xz', '.tbz2')):
+    elif file_or_url.endswith(("tar.gz", "tar.bz2", "tar.xz", ".tbz2")):
         ArkFile = tarfile.TarFile
     else:
-        raise ValueError(f'{file_or_url} has unsupported archive type.')
+        raise ValueError(f"{file_or_url} has unsupported archive type.")
 
     with tempfile.TemporaryDirectory() as tmp:
-        if file_or_url.startswith(('http', 'ftp')):
-            file_or_url = download(file_or_url, tmp, hexdigest, hasher,
-                                   **kwargs)
+        if file_or_url.startswith(("http", "ftp")):
+            file_or_url = download(file_or_url, tmp, hexdigest, hasher, **kwargs)
         elif hasher and hexdigest:
             verify(file_or_url, hexdigest, hasher, **kwargs)
 
         logger.debug(f"Extracting {file_or_url} to {path}")
-        with ArkFile.open(file_or_url) as archive:  # pylint: disable=no-value-for-parameter
+        with ArkFile.open(
+            file_or_url
+        ) as archive:  # pylint: disable=no-value-for-parameter
             member_list = archive.getmembers()
             archive.extractall(path)
             return member_list
 
 
 # noinspection PyUnresolvedReferences
-def verify(file: Union[str, os.PathLike],
-           hexdigest: str,
-           hasher: Callable,
-           chunk_size=2 ** 25):
+def verify(
+    file: Union[str, os.PathLike], hexdigest: str, hasher: Callable, chunk_size=2 ** 25
+):
     """verifies a downloaded file using hashlib"""
     logger.debug(f"Using {hasher.name} to verify archive.")
     logger.debug(f"Expecting hex digest: {hexdigest}")
-    with open(file, 'rb') as f:
+    with open(file, "rb") as f:
         chunk = f.read(chunk_size)
         while chunk:
             hasher.update(chunk)
@@ -331,19 +337,20 @@ def verify(file: Union[str, os.PathLike],
 
 def configure_logging(kwargs: MutableMapping) -> MutableMapping:
     # configure logging
-    fh = logging.FileHandler(kwargs['log_file'])
+    fh = logging.FileHandler(kwargs["log_file"])
     fh.setLevel(logging.DEBUG)
-    fh.setFormatter(logging.Formatter(
-        '%(asctime)s::%(levelname)s::%(name)s::%(message)s'))
+    fh.setFormatter(
+        logging.Formatter("%(asctime)s::%(levelname)s::%(name)s::%(message)s")
+    )
     ch = logging.StreamHandler()
     ch.setFormatter(logging.Formatter())
-    ch.setLevel(logging.DEBUG if kwargs['verbose'] else logging.INFO)
+    ch.setLevel(logging.DEBUG if kwargs["verbose"] else logging.INFO)
     # noinspection PyArgumentList
     logging.basicConfig(
         level=logging.DEBUG,
         handlers=(fh, ch),
     )
-    del kwargs['verbose'], kwargs['log_file']
+    del kwargs["verbose"], kwargs["log_file"]
     return kwargs
 
 
@@ -355,18 +362,28 @@ def cli_common(ap: ArgumentParser) -> Dict:
     :arg ap: the argparse.ArgumentParser to append options to
     """
     ap.add_argument(
-        '-l', '--log-file', help="where to store log file",
-        default=os.path.join(os.getcwd(), "tib.log",))
+        "-l",
+        "--log-file",
+        help="where to store log file",
+        default=os.path.join(
+            os.getcwd(),
+            "tib.log",
+        ),
+    )
     ap.add_argument(
-        '-v', '--verbose', help="prints DEBUG log level (logged anyway in "
-        "--log-file)",
-        action='store_true')
+        "-v",
+        "--verbose",
+        help="prints DEBUG log level (logged anyway in " "--log-file)",
+        action="store_true",
+    )
 
     # parse the arguments, getting the result back in dict format
     kwargs = vars(ap.parse_args())
 
     return configure_logging(kwargs)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     import doctest
+
     doctest.testmod(optionflags=doctest.ELLIPSIS)

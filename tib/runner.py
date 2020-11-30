@@ -16,19 +16,21 @@ from typing import (
     Text,
     Union,
 )
+
 Path = Union[Text, os.PathLike]
 
 
 __all__ = [
-    'find_multipass',
-    'MultipassRunner',
-    'MULTIPASS_URI',
+    "find_multipass",
+    "MultipassRunner",
+    "MULTIPASS_URI",
 ]
 
 logger = logging.getLogger(__name__)
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-MULTIPASS_URI = 'https://multipass.run/'
+MULTIPASS_URI = "https://multipass.run/"
+
 
 def find_multipass() -> str:
     """
@@ -38,10 +40,11 @@ def find_multipass() -> str:
         FileNotFoundError
     """
     logger.debug("Looking for multipass")
-    multipass = shutil.which('multipass')
+    multipass = shutil.which("multipass")
     if not multipass:
         raise FileNotFoundError(
-            f"Multipass not found. Installation instructions: {MULTIPASS_URI}")
+            f"Multipass not found. Installation instructions: {MULTIPASS_URI}"
+        )
     logger.debug(f"Found multipass: {multipass}")
     return multipass
 
@@ -52,16 +55,18 @@ class MultipassRunner(contextlib.AbstractContextManager):
     """
 
     # where scripts are copied to
-    scriptdir='/tmp/scriptdir'
+    scriptdir = "/tmp/scriptdir"
 
-    def __init__(self,
-                 cpus:int=multiprocessing.cpu_count(),
-                 disk='64G',
-                 mem='8G',
-                 name='tib',
-                 verbose=0,
-                 image='18.04',
-                 no_cleanup=False):
+    def __init__(
+        self,
+        cpus: int = multiprocessing.cpu_count(),
+        disk="64G",
+        mem="8G",
+        name="tib",
+        verbose=0,
+        image="18.04",
+        no_cleanup=False,
+    ):
         self._multipass = find_multipass()
         self._cpus = cpus
         self._disk = disk
@@ -75,15 +80,20 @@ class MultipassRunner(contextlib.AbstractContextManager):
         logger.info("Setting up VM.")
         # base command
         command = [
-            self._multipass, 'launch',
-            '--cpus', self._cpus,
-            '--disk', self._disk,
-            '--mem', self._mem,
-            '--name', self._name,
+            self._multipass,
+            "launch",
+            "--cpus",
+            self._cpus,
+            "--disk",
+            self._disk,
+            "--mem",
+            self._mem,
+            "--name",
+            self._name,
         ]
         # verbose options
         for _ in range(self._verbose):
-            command.append('--verbose')
+            command.append("--verbose")
         # append the final positional argument
         command.append(self._image)
         # convert all arguments to string
@@ -95,7 +105,7 @@ class MultipassRunner(contextlib.AbstractContextManager):
             logger.error(
                 "Error starting VM. Check output of multipass command. "
                 "Often, the VM may already exist. "
-                "Try 'multipass delete --purge tib-builder' "
+                "Try 'multipass delete --purge tib' "
                 "and then try again."
             )
             raise
@@ -106,22 +116,23 @@ class MultipassRunner(contextlib.AbstractContextManager):
     def __exit__(self, exc_type, exc, exc_tb):
         if not self.no_cleanup:
             logger.info("Cleaning up")
-            command = (self._multipass, 'delete', '--purge', self._name)
+            command = (self._multipass, "delete", "--purge", self._name)
             tib.utils.run(command)
-            logger.info('VM Deleted.')
+            logger.info("VM Deleted.")
         if exc_type is KeyboardInterrupt:
-            logger.info('Cancelled.')
+            logger.info("Cancelled.")
             # suppress error
             return True
 
-    def run(self, command:Iterable[str], *args,
-            **kwargs) -> subprocess.CompletedProcess:
+    def run(
+        self, command: Iterable[str], *args, **kwargs
+    ) -> subprocess.CompletedProcess:
         """run a command in the runner"""
         command = list(command)
         program = os.path.basename(command[0])
         logger.debug(f"Running in VM: {' '.join(command)}")
         # the '--' is required to pass arguments
-        command = (self._multipass, 'exec', self._name, '--', *command)
+        command = (self._multipass, "exec", self._name, "--", *command)
         return subprocess.run(command, *args, **kwargs)
         # this works, but breaks with ncurses.
         # with subprocess.Popen(command, stdout=subprocess.PIPE, stdin=subprocess.STD_INPUT_HANDLE) as process:
@@ -130,19 +141,19 @@ class MultipassRunner(contextlib.AbstractContextManager):
         # return subprocess.CompletedProcess(
         #     process.args, process.returncode, process.stdout, process.stderr)
 
-    def run_script(self, script:str, *args,
-                   mode='700',
-                   **kwargs) -> subprocess.CompletedProcess:
+    def run_script(
+        self, script: str, *args, mode="700", **kwargs
+    ) -> subprocess.CompletedProcess:
         script = os.path.abspath(script)
         # make sure the workdir exists, and if not create it with mode
-        self.run(('mkdir', '-p', '-m', mode, self.scriptdir))
+        self.run(("mkdir", "-p", "-m", mode, self.scriptdir))
         # calculate the path join (we can't use os.path.join because it would
         # not work on Windows)
         # FIXME(mdegans): use os.path.join on other platforms
-        dest = f'{self.scriptdir}/{os.path.basename(script)}'
+        dest = f"{self.scriptdir}/{os.path.basename(script)}"
         self.transfer_to(script, dest)
         # make sure the copied script is executable
-        self.run(('chmod', '+x', dest))
+        self.run(("chmod", "+x", dest))
         # run the actual script with any arguments
         return self.run((dest, *args), **kwargs)
 
@@ -150,27 +161,29 @@ class MultipassRunner(contextlib.AbstractContextManager):
         args = list(args)
         sources = args[:-1]
         # prefix dest with the vm name so name:path
-        dest = f'{self._name}:{args[-1]}'
-        logger.debug(f'copying {sources} to {dest}')
+        dest = f"{self._name}:{args[-1]}"
+        logger.debug(f"copying {sources} to {dest}")
         for source in sources:
             with open(os.path.abspath(source)) as f:
                 # piping through stdin is necessary because of snap isolation
                 # in linux and a transfer issue:
                 # https://github.com/canonical/multipass/issues/1783
-                command = (self._multipass, 'transfer', '-', dest)
+                # and they broke this on the latest version of multipass
+                # FML. Maybe it still works on Windows.
+                command = (self._multipass, "transfer", "-", dest)
                 tib.utils.run(command, stdin=f, **kwargs).check_returncode()
 
     def transfer_from(self, *args: Iterable[Path], **kwargs):
         args = list(args)
         sources = args[:-1]
         # prefix sources with the vm name so name:path
-        sources = [f'{self._name}:{p}' for p in sources]
+        sources = [f"{self._name}:{p}" for p in sources]
         dest = args[-1]
-        command = (self._multipass, 'transfer', *sources, dest)
+        command = (self._multipass, "transfer", *sources, dest)
         tib.utils.run(command).check_returncode()
 
-    def mount(self, source:Path, target:Path):
-        command = (self._multipass, 'mount', source, f'{self._name}:{target}')
+    def mount(self, source: Path, target: Path):
+        command = (self._multipass, "mount", source, f"{self._name}:{target}")
         tib.utils.run(command).check_returncode()
 
 
@@ -183,17 +196,17 @@ if __name__ == "__main__":
     multipass = find_multipass()
     scripts_and_arguments = (
         # echo.sh just runs echo with input arguments
-        ('echo.sh', ('one', 'two')),
-        ('echo.sh', ('un', 'deux')),
+        ("echo.sh", ("one", "two")),
+        ("echo.sh", ("un", "deux")),
     )
     with MultipassRunner(multipass) as runner:
         # test run
-        runner.run(('echo', 'testing simple command'))
+        runner.run(("echo", "testing simple command"))
         # test run_script (and transfer_to)
         for script, args in scripts_and_arguments:
             script = os.path.join(THIS_DIR, script)
             # test kwargs work
             cp = runner.run_script(script, *args, stdout=subprocess.PIPE)
-            # we should be echoed the same args we passed in by the 
-            assert(' '.join(args) in cp.stdout)
+            # we should be echoed the same args we passed in by the
+            assert " ".join(args) in cp.stdout
             cp.check_returncode()
