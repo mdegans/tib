@@ -41,7 +41,7 @@ function setup() {
   esac
   download $URI $SHA rootfs.tbz2
   echo "Extracting rootfs tarball."
-  sudo tar -I lbzip2 -xpf rootfs.tbz2 -C ~/Linux_for_Tegra/rootfs
+  sudo tar -I lbzip2 -xpf rootfs.tbz2 -C Linux_for_Tegra/rootfs
   echo "Rootfs tarball sucessfully extracted."
   rm rootfs.tbz2
   if [ "$2" == "--install-key" ]; then
@@ -50,12 +50,12 @@ function setup() {
     echo "Installing apt key in rootfs."
     sudo chown root:root jetson-ota-public.asc
     sudo chmod 644 jetson-ota-public.asc 
-    sudo mv jetson-ota-public.asc ~/Linux_for_Tegra/rootfs/etc/apt/trusted.gpg.d/
+    sudo mv jetson-ota-public.asc Linux_for_Tegra/rootfs/etc/apt/trusted.gpg.d/
     echo "creating apt list at .../rootfs/etc/apt/sources.list.d/nvidia-l4t-apt-source.list"
     echo "deb https://repo.download.nvidia.com/jetson/common $APT_RELEASE main" \
-      | sudo tee ~/Linux_for_Tegra/rootfs/etc/apt/sources.list.d/nvidia-l4t-apt-source.list
+      | sudo tee Linux_for_Tegra/rootfs/etc/apt/sources.list.d/nvidia-l4t-apt-source.list
     echo "deb https://repo.download.nvidia.com/jetson/${SOC} $APT_RELEASE main" \
-      | sudo tee -a ~/Linux_for_Tegra/rootfs/etc/apt/sources.list.d/nvidia-l4t-apt-source.list
+      | sudo tee -a Linux_for_Tegra/rootfs/etc/apt/sources.list.d/nvidia-l4t-apt-source.list
   fi
 }
 
