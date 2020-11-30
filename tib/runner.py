@@ -208,5 +208,5 @@ if __name__ == "__main__":
             # test kwargs work
             cp = runner.run_script(script, *args, stdout=subprocess.PIPE)
             # we should be echoed the same args we passed in by the
-            assert " ".join(args) in cp.stdout
+            assert " ".join(args).encode() in cp.stdout
             cp.check_returncode()
