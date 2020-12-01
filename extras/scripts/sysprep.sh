@@ -2,6 +2,7 @@
 
 # This is a sample script to be run with chroot.py (or otherwise in a chroot)
 # to remove and install some apt packages from the rootfs (before first boot)
+# You can use a script like this to prepare a system for first run.
 
 set -e
 
