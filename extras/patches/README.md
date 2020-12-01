@@ -13,7 +13,7 @@ tib nano --patches extras/patches/nano_4.4.3_l4t32.4.3_rbpv3_imx477_support.patc
 Will prepare for the build and apply the patch. Eventually you'll be presented
 with a blue menu and a bunch of choices. Navigate to IMX477 support as shown
 below, press `y` to enable the option, press `esc` until you're promted to save,
-select Yes and quit.
+select `Yes` and press `enter`.
 
 ```
 Device Drivers  --->
