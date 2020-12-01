@@ -129,9 +129,11 @@ def main(
         runner.run(command).check_returncode()
         # if needed, copy the chroot script to the filesystem
         if chroot_scripts:
+            # TODO(mdegans): move to runner?
             for script in chroot_scripts:
                 dest_script = f"{runner.scriptdir}/{os.path.basename(script)}"
                 runner.transfer_to(script, dest_script)
+                runner.run(("chmod", "+x", dest_script))
                 runner.run_script(
                     CHROOT_PY, ROOTFS_PATH, "--script", dest_script
                 ).check_returncode()
