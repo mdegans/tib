@@ -25,6 +25,9 @@ HOME = "/home/ubuntu"
 L4T_PATH = f"{HOME}/Linux_for_Tegra"
 IMAGE_SCRIPT = f"{L4T_PATH}/tools/jetson-disk-image-creator.sh"
 APPLY_BINARIES = f"{L4T_PATH}/apply_binaries.sh"
+ROOTFS_PATH = f"{L4T_PATH}/rootfs"
+KERNEL_PY = os.path.join(tib.runner.THIS_DIR, "kernel.py")
+CHROOT_PY = os.path.join(tib.runner.THIS_DIR, "chroot.py")
 IMAGE_OUT = f"{HOME}/sdcard.img"
 SOURCE_DIR = f"{L4T_PATH}/source"
 KERNEL_PATCH_DIR = f"/tmp/kernel_patches"
@@ -42,8 +45,10 @@ Customize the kernel using menuconfig:
 
 
 def main(
-    scripts: Sequence[str],
+    scripts: Iterable[Path],
+    chroot_scripts: Iterable[Path],
     patches: Iterable[Path],
+    enter_chroot: bool,
     menuconfig: bool,
     mem: int,
     verbose: int,
@@ -113,10 +118,7 @@ def main(
             if menuconfig:
                 args.append("--menuconfig")
             logger.info("Building Linux kernel.")
-            runner.run_script(
-                os.path.join(tib.runner.THIS_DIR, "kernel.py"),
-                *args,
-            ).check_returncode()
+            runner.run_script(KERNEL_PY, *args).check_returncode()
         # apply binaries in target overlay mode, so the kernel  and kernel
         # modules we built get installed.
         command = ["sudo", APPLY_BINARIES]
@@ -125,6 +127,16 @@ def main(
             command.append("--target-overlay")
         logger.info("Applying binaries to rootfs.")
         runner.run(command).check_returncode()
+        # if needed, copy the chroot script to the filesystem
+        if chroot_scripts:
+            for script in chroot_scripts:
+                dest_script = f"{runner.scriptdir}/{os.path.basename(script)}"
+                runner.transfer_to(script, dest_script)
+                runner.run_script(
+                    CHROOT_PY, ROOTFS_PATH, "--script", dest_script
+                ).check_returncode()
+        if enter_chroot:
+            runner.run_script(CHROOT_PY, ROOTFS_PATH, "--enter")
         # assemble the command to run the image building script.
         command = [
             "sudo",
@@ -216,21 +228,26 @@ def cli_main():
     ap.add_argument(
         "--scripts",
         default=tuple(),
-        nargs="*",
+        nargs="+",
         help="script(s) to copy and run inside the VM",
     )
 
-    # TODO(mdegans): implement
-    # ap.add_argument('--chroot-script',
-    #     dest='chroot_script',
-    #     nargs='*',
-    #     help='script(s) to run inside the rootfs (as aarch64)',
-    # )
+    ap.add_argument(
+        "--enter-chroot",
+        action="store_true",
+        help="enter a chroot to edit the rootfs interactively",
+    )
+
+    ap.add_argument(
+        "--chroot-scripts",
+        nargs="+",
+        help="script(s) to run inside the rootfs (as aarch64)",
+    )
 
     ap.add_argument(
         "--patches",
         default=tuple(),
-        nargs="*",
+        nargs="+",
         help="one or more **kernel** patches to apply at kernel_src.tbz2 root",
     )
 
