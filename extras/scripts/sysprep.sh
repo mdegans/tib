@@ -6,8 +6,9 @@
 
 set -e
 
-# update package set
+# update packages
 apt-get update
+apt-get dist-upgrade -y
 
 # it's possible to do a full apt-get upgrade here if desired, but this can cause
 # breakage in some instances
