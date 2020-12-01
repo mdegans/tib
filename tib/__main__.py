@@ -1,6 +1,8 @@
+import errno
 import logging
 import os
 import sys
+
 import tib
 
 from typing import (
@@ -60,6 +62,16 @@ def main(
     """
     Create a flashable Tegra SD Card image.
     """
+    # quickly check scripts and patches exist (fail fast)
+    # this could move to an argparse action
+    scripts = tuple(scripts)
+    chroot_scripts = tuple(chroot_scripts)
+    patches = tuple(patches)
+    for script in (*scripts, *chroot_scripts, *patches):
+        # https://stackoverflow.com/questions/36077266/how-do-i-raise-a-filenotfounderror-properly
+        if not os.path.isfile(script):
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), script)
+    # prepend our scripts
     scripts = (
         # dependencies script (build-essential, etc...)
         (
