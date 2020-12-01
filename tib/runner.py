@@ -164,7 +164,9 @@ class MultipassRunner(contextlib.AbstractContextManager):
         dest = f"{self._name}:{args[-1]}"
         logger.debug(f"copying {sources} to {dest}")
         for source in sources:
-            tib.utils.run((self._multipass, "transfer", source, dest))
+            tib.utils.run(
+                (self._multipass, "transfer", source, dest)
+            ).check_returncode()
 
     def transfer_from(self, *args: Iterable[Path], **kwargs):
         args = list(args)
