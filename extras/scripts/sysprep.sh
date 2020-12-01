@@ -7,7 +7,7 @@
 set -e
 
 # purge useless packages and configuration
-apt-get purge -y --autoremove \
+apt-get purge -y \
   libreoffice-*
 
 # update packages
