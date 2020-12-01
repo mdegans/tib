@@ -6,16 +6,13 @@
 
 set -e
 
+# purge useless packages and configuration
+apt-get purge -y --autoremove \
+  libreoffice-*
+
 # update packages
 apt-get update
-apt-get dist-upgrade -y
-
-# it's possible to do a full apt-get upgrade here if desired, but this can cause
-# breakage in some instances
-
-# purge useless packages and configuration
-apt-get purge -y \
-  libreoffice-*
+apt-get dist-upgrade -y --autoremove
 
 # install packages, cleaning up any no longer needed from above
 apt-get install -y --autoremove --no-install-recommends \
