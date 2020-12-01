@@ -19,5 +19,7 @@ apt-get install -y --autoremove --no-install-recommends \
   cuda-compiler-10-2 \
   cuda-libraries-dev-10-2 \
   nano \
+  nvidia-container \
+  nvidia-tensorrt \
   python3-wheel \
 && rm -rf /var/lib/apt/lists/*
