@@ -16,7 +16,7 @@ apt-get update
 # the system can be updated as shown below, however badly written scripts in apt
 # packages can fail to install correctly in a chroot. If you get a black screen
 # at boot instead of the initial setup, disable the following line.
-# apt-get dist-upgrade -y --autoremove
+apt-get dist-upgrade -y
 
 # install packages, cleaning up any no longer needed from above
 apt-get install -y --autoremove --no-install-recommends \
