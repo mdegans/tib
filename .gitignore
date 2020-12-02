@@ -130,9 +130,8 @@ dmypy.json
 
 # ide stuff
 .vscode/
-<<<<<<< HEAD
 
 # images
 *.img
-=======
->>>>>>> 143a6e729084d06b5e01df86bba652be32b12aeb
+*.zip
+*.sha512sum

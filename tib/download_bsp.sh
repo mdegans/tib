@@ -32,8 +32,10 @@ function download() {
   tar -I lbzip2 -xf bsp.tbz2
   echo "BSP tarball sucessfully extracted."
   sudo chown root:root Linux_for_Tegra/rootfs/
+  echo "Changed owner of rootfs to root:root"
   rm bsp.tbz2
   # Remove readme (Because OCD. This ends up in offical Tegra images even.)
+  echo "Removing README.txt from rootfs/"
   sudo rm Linux_for_Tegra/rootfs/README.txt
 }
 
