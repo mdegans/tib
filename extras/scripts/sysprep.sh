@@ -27,5 +27,6 @@ apt-get install -y --autoremove --no-install-recommends \
   nano \
   nvidia-container \
   nvidia-tensorrt \
+  python3-dev \
   python3-wheel \
 && rm -rf /var/lib/apt/lists/*
