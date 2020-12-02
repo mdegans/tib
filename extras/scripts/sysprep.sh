@@ -4,7 +4,14 @@ set -e
 
 # This is a sample script to be run with chroot.py (or otherwise in a chroot)
 # to remove and install some apt packages from the rootfs (before first boot)
-# You can use a script like this to prepare a system for first run.
+# You can use a script like this to prepare a system for first run. It:
+
+# * Installs CUDA, creates /usr/local/cuda symlink, and modifes
+# `/etc/skel/.profile` to add CUDA_HOME and nvcc to path for all new users
+
+# * Installs TensorRT, nvidia-docker, and some python3 development packages
+
+# * Builds and installs CUDA enhanced OpenCV
 
 # change these if cuda version / apt version changes
 readonly CUDA_VER="10.2"
@@ -46,9 +53,11 @@ echo "doing cuda post-install setup"
 ln -s $CUDA_HOME_REAL $CUDA_HOME
 # patch /etc/skel/.profile
 cat >> /etc/skel/.profile <<EOL
+
+# set the cuda home appropriately
 export CUDA_HOME=${CUDA_HOME}
-export PATH=${CUDA_HOME}/bin:${PATH}
-export LD_LIBRARY_PATH=${CUDA_HOME}/lib64:$LD_LIBRARY_PATH
+# add the cuda bindir so nvcc and other tools are in $PATH
+PATH=\${CUDA_HOME}/bin:\${PATH}
 EOL
 
 # build and install OpenCV
