@@ -4,6 +4,8 @@
 # to remove and install some apt packages from the rootfs (before first boot)
 # You can use a script like this to prepare a system for first run.
 
+readonly CUDA_VER="10-2"
+
 set -e
 
 # purge useless packages and configuration
@@ -20,8 +22,8 @@ apt-get dist-upgrade -y
 
 # install packages, cleaning up any no longer needed from above
 apt-get install -y --autoremove --no-install-recommends \
-  cuda-compiler-10-2 \
-  cuda-libraries-dev-10-2 \
+  cuda-compiler-$CUDA_VER \
+  cuda-libraries-dev-$CUDA_VER \
   nano \
   nvidia-container \
   nvidia-tensorrt \
