@@ -134,3 +134,4 @@ dmypy.json
 # images
 *.img
 *.zip
+*.sha512sum
