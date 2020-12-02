@@ -8,6 +8,7 @@ set -e
 
 # change these if cuda version / apt version changes
 readonly CUDA_VER="10.2"
+readonly OPENCV_VER="4.5.0"
 
 # these probably shouldn't change
 readonly CUDA_HOME_REAL="/usr/local/cuda-${CUDA_VER}"
@@ -49,3 +50,11 @@ export CUDA_HOME=${CUDA_HOME}
 export PATH=${CUDA_HOME}/bin:${PATH}
 export LD_LIBRARY_PATH=${CUDA_HOME}/lib64:$LD_LIBRARY_PATH
 EOL
+
+# build and install OpenCV
+cd /tmp
+git clone https://github.com/mdegans/nano_build_opencv.git
+cd nano_build_opencv
+./build_opencv.sh $OPENCV_VER
+cd ..
+rm -rf nano_build_opencv
