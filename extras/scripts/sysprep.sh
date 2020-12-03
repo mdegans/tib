@@ -61,9 +61,12 @@ PATH=\${CUDA_HOME}/bin:\${PATH}
 EOL
 
 # build and install OpenCV
-cd /tmp
-git clone https://github.com/mdegans/nano_build_opencv.git
-cd nano_build_opencv
-./build_opencv.sh $OPENCV_VER
-cd ..
-rm -rf nano_build_opencv
+# this works, but is very slow. Disabling until native cross compilation support
+# is added to chroot.py
+
+# cd /tmp
+# git clone https://github.com/mdegans/nano_build_opencv.git
+# cd nano_build_opencv
+# ./build_opencv.sh $OPENCV_VER
+# cd ..
+# rm -rf nano_build_opencv
