@@ -7,10 +7,11 @@ import tib
 
 from typing import (
     Iterable,
+    Optional,
+    Sequence,
     Text,
     Tuple,
     Union,
-    Sequence,
 )
 
 Path = Union[Text, os.PathLike]
@@ -32,7 +33,8 @@ KERNEL_PY = os.path.join(tib.runner.THIS_DIR, "kernel.py")
 CHROOT_PY = os.path.join(tib.runner.THIS_DIR, "chroot.py")
 IMAGE_OUT = f"{HOME}/sdcard.img"
 SOURCE_DIR = f"{L4T_PATH}/source"
-KERNEL_PATCH_DIR = f"/tmp/kernel_patches"
+KERNEL_PATCH_DIR = "/tmp/kernel_patches"
+KERNEL_CONF_DIR = "/tmp/kernel_configs"
 EXAMPLES = """Examples:
 
 Building a more or less stock SD card image:
@@ -52,6 +54,8 @@ def main(
     patches: Iterable[Path],
     enter_chroot: bool,
     menuconfig: bool,
+    save_kconfig: Optional[str],
+    load_kconfig: Optional[str],
     mem: int,
     verbose: int,
     out: str,
@@ -62,7 +66,7 @@ def main(
     """
     Create a flashable Tegra SD Card image.
     """
-    # quickly check scripts and patches exist (fail fast)
+    # quickly check scripts and other input files exist (fail fast)
     # this could move to an argparse action
     scripts = tuple(scripts)
     chroot_scripts = tuple(chroot_scripts)
@@ -70,6 +74,9 @@ def main(
     for script in (*scripts, *chroot_scripts, *patches):
         # https://stackoverflow.com/questions/36077266/how-do-i-raise-a-filenotfounderror-properly
         if not os.path.isfile(script):
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), script)
+    if load_kconfig:
+        if not os.path.isfile(load_kconfig):
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), script)
     # prepend our scripts
     scripts = (
@@ -113,13 +120,15 @@ def main(
         # run most scripts, including user scripts
         for script, args in scripts:
             runner.run_script(script, *args).check_returncode()
-        # make patch dir and copy patches to Linux_for_Tegra/source/patches
-        runner.run(("mkdir", "-m", "700", KERNEL_PATCH_DIR)).check_returncode()
         # build a new kernel if necessary
         if patches or menuconfig:
             args = []
+            # make patch dir and copy patches to Linux_for_Tegra/source/patches
             if patches:
+                # create patch dir
+                runner.run(("mkdir", "-m", "700", KERNEL_PATCH_DIR)).check_returncode()
                 inner_patches = []  # VM path to patches
+                # copy all patches and append them to args
                 for patch in patches:
                     dest = f"{KERNEL_PATCH_DIR}/{os.path.basename(patch)}"
                     runner.transfer_to(patch, dest)
@@ -127,10 +136,27 @@ def main(
                 args.extend(("--patches", *inner_patches))
             if verbose:
                 args.append("--verbose")
+            if load_kconfig or save_kconfig:
+                # create kernel config dir
+                runner.run(("mkdir", "-m", "700", KERNEL_CONF_DIR)).check_returncode()
+            if load_kconfig:
+                # transfer the kernel config to the VM and add the flags
+                dest = f"{KERNEL_CONF_DIR}/kconfig_in"
+                runner.transfer_to(load_kconfig, dest)
+                args.extend(("--load-kconfig", dest))
+            if save_kconfig:
+                # add the flags to store the kconfig, we'll transfer it back
+                # after the kernel is done building (not just configuring, so
+                # if a config is saved, it must at least be a good config)
+                kernel_config_out = f"{KERNEL_CONF_DIR}/kconfig_out"
+                args.extend(("--save-kconfig", kernel_config_out))
             if menuconfig:
                 args.append("--menuconfig")
             logger.info("Building Linux kernel.")
             runner.run_script(KERNEL_PY, *args).check_returncode()
+            if save_kconfig:
+                # we have a config that sucessfully built a kernel. Transfer it.
+                runner.transfer_from(kernel_config_out, save_kconfig)
         # apply binaries in target overlay mode, so the kernel  and kernel
         # modules we built get installed.
         command = ["sudo", APPLY_BINARIES]
@@ -272,6 +298,16 @@ def cli_main():
         "damage your Tegra or connected devices if the kernel is "
         "mis-configured).",
         action="store_true",
+    )
+
+    ap.add_argument(
+        "--save-kconfig",
+        help="filename to save kernel config to (save your menuconfig choices)",
+    )
+
+    ap.add_argument(
+        "--load-kconfig",
+        help="filename to load kernel config from (load menuconfig choices)",
     )
 
     kwargs = vars(ap.parse_args())
