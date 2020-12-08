@@ -112,7 +112,8 @@ def build(
             patch(p)
 
         # 0.75 cd to kernel source root
-        chdir(os.path.join(tmp, "kernel", "kernel-4.9"))
+        kernel_src_path = os.path.join(tmp, "kernel", "kernel-4.9")
+        chdir(kernel_src_path)
 
         # 1. set kernel out path
         kernel_out = os.path.join(tmp, "kernel_out")
@@ -125,7 +126,6 @@ def build(
 
         # 3. Create the initial config
         config(make_common, kernel_out, load_kconfig)
-        os.chdir(kernel_out)
 
         # 3.5 Customize initial configuration interactively (optional)
         if menuconfig:
@@ -155,13 +155,15 @@ def build(
         archive_kconfig(kernel_out, save_kconfig)
 
 
-def config(make_args, kernel_out, load_kconfig=None, kernel_source_path=None):
+def config(make_args, kernel_out, load_kconfig=None):
     logger.info("Configuring kernel")
     os.mkdir(kernel_out, 0o755)
     if load_kconfig:
-        logger.info(f"Using supplied config: {load_kconfig}")
-        config_filename = os.path.join(kernel_source_path, ".config")
-        shutil.copy(load_kconfig, config_filename)
+        shutil.copy(load_kconfig, os.path.join(kernel_out, ".config"))
+        logger.info(f"listing any new symbols:")
+        subprocess.run(("make", *make_args, "listnewconfig")).check_returncode()
+        logger.info(f"checking old .config")
+        subprocess.run(("make", *make_args, "oldconfig")).check_returncode()
     else:
         # use the default config
         logger.info(f"Using default config (tegra_defconfig).")
