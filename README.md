@@ -9,7 +9,7 @@ Scripts to make JetPack SD Card images on any platform.
 
 ## Installation:
 
-Latest version:
+Latest version (virtualenv recommended because of #6):
 ```
 pip install git+https://github.com/mdegans/tib.git
 ```
