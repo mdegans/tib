@@ -69,7 +69,10 @@ def main(
     # quickly check scripts and other input files exist (fail fast)
     # this could move to an argparse action
     scripts = tuple(scripts)
-    chroot_scripts = tuple(chroot_scripts)
+    if chroot_scripts:
+        chroot_scripts = tuple(chroot_scripts)
+    else:
+        chroot_scripts = tuple()
     patches = tuple(patches)
     for script in (*scripts, *chroot_scripts, *patches):
         # https://stackoverflow.com/questions/36077266/how-do-i-raise-a-filenotfounderror-properly
