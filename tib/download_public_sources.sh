@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-readonly NANO_URI="https://developer.nvidia.com/embedded/L4T/r32_Release_v4.3/Sources/T210/public_sources.tbz2"
-readonly NANO_SHA="a7024135b0b0a5eb93d47b39b7b24a7b9af649274352fe71ce281312b146b3d916d5f0db5520dc7d0d1dc17dddf4c6b5a4352d6a174f12176f6d0009f8e05bda"
-readonly NX_URI="https://developer.nvidia.com/embedded/L4T/r32_Release_v4.3/Sources/T186/public_sources.tbz2"
-readonly NX_SHA="5e6db0c9e739db07b461b041b58b668d20662e2048029f6fa50bb3963f0319715527e9cc3d76e1b97229a3bc3f46ae082a5725d44172550e25e3db1df2bdcbfb"
+readonly NANO_URI="https://files.mdegans.dev/l4t-mirror/latest/nano/public_sources.tbz2"
+readonly NANO_SHA="99a38dde727321d377b29f7fcfbe3f8f4ed87606e4c53c25182d4dc594345835229111369c881da99e9fc376a706d7a327c8fedb3a3eda314a04bbc02a885bb5"
+readonly NX_URI="https://files.mdegans.dev/l4t-mirror/latest/nx/public_sources.tbz2"
+readonly NX_SHA="b7999f458f859436732d7ead9df1fc2c918c9753294ea91fcce58aa5d210efd1bcace9fa059f9e8668d36238816dc998cc89fa1a4e61020fe283eb518990703e"
 
 function download() {
   case "$1" in

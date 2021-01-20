@@ -2,10 +2,10 @@
 set -e
 
 # note: rootfs is the same for every board rn but this might not always be so
-readonly NANO_URI="https://developer.nvidia.com/embedded/L4T/r32_Release_v4.3/t210ref_release_aarch64/Tegra_Linux_Sample-Root-Filesystem_R32.4.3_aarch64.tbz2"
-readonly NANO_SHA="c3542aa1b0cdd38aff10975e48cb4f74649eed6c4cb685c1ba2d84c947f9c7210de5d3c88ae4dbf3b3bdc254fbbc058bbb560298fe1bed2249952ed2580d57cb"
-readonly NX_URI="https://developer.nvidia.com/embedded/L4T/r32_Release_v4.3/t186ref_release_aarch64/Tegra_Linux_Sample-Root-Filesystem_R32.4.3_aarch64.tbz2"
-readonly NX_SHA="c3542aa1b0cdd38aff10975e48cb4f74649eed6c4cb685c1ba2d84c947f9c7210de5d3c88ae4dbf3b3bdc254fbbc058bbb560298fe1bed2249952ed2580d57cb"
+readonly NANO_URI="https://files.mdegans.dev/l4t-mirror/latest/nano/Tegra_Linux_Sample-Root-Filesystem_R32.4.4_aarch64.tbz2"
+readonly NANO_SHA="b02fe90071405d48e8bcded2085a660298941ef68af9e46ab130953adaaa393b2bd4f6121a835d09ff68e72e2efa5abf381c8060dc7876cc8e580b2ed31db404"
+readonly NX_URI="https://files.mdegans.dev/l4t-mirror/latest/nx/Tegra_Linux_Sample-Root-Filesystem_R32.4.4_aarch64.tbz2"
+readonly NX_SHA="b02fe90071405d48e8bcded2085a660298941ef68af9e46ab130953adaaa393b2bd4f6121a835d09ff68e72e2efa5abf381c8060dc7876cc8e580b2ed31db404"
 
 # Hooray, Nvidia put the apt key someplace handy!
 readonly KEY_BSP_URI="https://repo.download.nvidia.com/jetson/jetson-ota-public.asc"
