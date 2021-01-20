@@ -433,9 +433,9 @@ def main(
         qemu=qemu,
     ) as runner:
         if command:
-            runner.run(command)
+            runner.run(command).check_returncode()
         if script:
-            runner.run_script(*script)
+            runner.run_script(*script).check_returncode()
         if enter:
             runner.enter_chroot()
 
