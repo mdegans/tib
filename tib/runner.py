@@ -60,7 +60,7 @@ class MultipassRunner(contextlib.AbstractContextManager):
     def __init__(
         self,
         cpus: int = multiprocessing.cpu_count(),
-        disk="64G",
+        disk="128G",
         mem="8G",
         name="tib",
         verbose=0,

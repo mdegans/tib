@@ -6,6 +6,7 @@ Scripts to make JetPack SD Card images on any platform.
 
 * Python 3 (and pip)
 * [Multipass](https://multipass.run/)
+* 128 Gb free space for VM image (only needed while building, freed when done).
 
 ## Installation:
 
