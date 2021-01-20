@@ -6,6 +6,8 @@
 
 Adapted from [here](https://developer.ridgerun.com/wiki/index.php?title=JetsonTX2/HowTo%27s/NVIDIA_Jetson_ISP_Control#Custom_ISP_Configuration)
 
+(on the Tegra device)
+
 ```
 sudo rm /var/nvidia/nvcam/settings/nvcam_cache_*
 sudo rm /var/nvidia/nvcam/settings/serial_no_*
