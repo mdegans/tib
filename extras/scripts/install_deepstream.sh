@@ -5,6 +5,8 @@
 
 set -e
 
+export DEBIAN_FRONTEND=noninteractive
+
 # update package set
 apt-get update
 

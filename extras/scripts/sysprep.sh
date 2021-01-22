@@ -23,6 +23,8 @@ readonly CUDA_HOME="/usr/local/cuda"
 readonly CUDA_VER_APT=${CUDA_VER//[.]/-}
 readonly PATH=${CUDA_HOME}/bin:${PATH}
 
+export DEBIAN_FRONTEND=noninteractive
+
 echo "installing apt dependencies"
 
 # purge useless packages and configuration
