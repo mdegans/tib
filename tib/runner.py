@@ -142,7 +142,7 @@ class MultipassRunner(contextlib.AbstractContextManager):
         #     process.args, process.returncode, process.stdout, process.stderr)
 
     def run_script(
-        self, script: str, *args, mode="700", **kwargs
+        self, script: str, *args, mode="700", sudo=False, **kwargs
     ) -> subprocess.CompletedProcess:
         script = os.path.abspath(script)
         # make sure the workdir exists, and if not create it with mode
@@ -155,7 +155,10 @@ class MultipassRunner(contextlib.AbstractContextManager):
         # make sure the copied script is executable
         self.run(("chmod", "+x", dest))
         # run the actual script with any arguments
-        return self.run((dest, *args), **kwargs)
+        command = [dest, *args]
+        if sudo:
+            command.insert(0, 'sudo')
+        return self.run(command, **kwargs)
 
     def transfer_to(self, *args: Sequence[Path], **kwargs):
         args = list(args)

@@ -2,15 +2,15 @@
 set -e
 
 # note: rootfs is the same for every board rn but this might not always be so
-readonly NANO_URI="https://files.mdegans.dev/l4t-mirror/latest/nano/Tegra_Linux_Sample-Root-Filesystem_R32.4.4_aarch64.tbz2"
-readonly NANO_SHA="b02fe90071405d48e8bcded2085a660298941ef68af9e46ab130953adaaa393b2bd4f6121a835d09ff68e72e2efa5abf381c8060dc7876cc8e580b2ed31db404"
-readonly NX_URI="https://files.mdegans.dev/l4t-mirror/latest/nx/Tegra_Linux_Sample-Root-Filesystem_R32.4.4_aarch64.tbz2"
-readonly NX_SHA="b02fe90071405d48e8bcded2085a660298941ef68af9e46ab130953adaaa393b2bd4f6121a835d09ff68e72e2efa5abf381c8060dc7876cc8e580b2ed31db404"
+readonly NANO_URI="https://developer.nvidia.com/embedded/L4T/r32_Release_v5.0/T210/Tegra_Linux_Sample-Root-Filesystem_R32.5.0_aarch64.tbz2"
+readonly NANO_SHA="4ea3d06a6f7279fd2551db408aceded529c798ab59d639b511adabd58586f5c94f05194cf028f9a816250c61222f957aaab8dc3d7e9639f8f53811491f907687"
+readonly NX_URI="https://developer.nvidia.com/embedded/L4T/r32_Release_v5.0/T186/Tegra_Linux_Sample-Root-Filesystem_R32.5.0_aarch64.tbz2"
+readonly NX_SHA="4ea3d06a6f7279fd2551db408aceded529c798ab59d639b511adabd58586f5c94f05194cf028f9a816250c61222f957aaab8dc3d7e9639f8f53811491f907687"
 
 # Hooray, Nvidia put the apt key someplace handy!
 readonly KEY_BSP_URI="https://repo.download.nvidia.com/jetson/jetson-ota-public.asc"
 readonly KEY_BSP_SHA="580d5fe3c8d956aa0ee02c93093c51ab5f6f64ad28a68472cc32e481be02dbc952ff4a262afd4f21596d8e8e2fd493131a9ee158a70e49d9500039a316c7cb42"
-readonly APT_RELEASE="r32.4"
+readonly APT_RELEASE="r32.5"
 
 function download() {
   # download and calculate the sha at the same time
@@ -73,4 +73,4 @@ function main() {
   esac
 }
 
-main $1 $2
+main "$1" "$2"

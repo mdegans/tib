@@ -44,10 +44,12 @@ apt-get install -y --autoremove --no-install-recommends \
   cuda-compiler-${CUDA_VER_APT} \
   cuda-libraries-dev-${CUDA_VER_APT} \
   nano \
+  curl \
   nvidia-container \
   nvidia-tensorrt \
   python3-dev \
   python3-wheel \
+  python3-pip \
 && rm -rf /var/lib/apt/lists/*
 
 echo "doing cuda post-install setup"
@@ -63,8 +65,9 @@ PATH=\${CUDA_HOME}/bin:\${PATH}
 EOL
 
 # build and install OpenCV
-# this works, but is very slow. Disabling until native cross compilation support
-# is added to chroot.py
+# this works, but is very slow. Disabling until "native" cross compilation
+# support is added to chroot.py (as it is this uses qemu-user-static and arm64
+# gcc)
 
 # cd /tmp
 # git clone https://github.com/mdegans/nano_build_opencv.git

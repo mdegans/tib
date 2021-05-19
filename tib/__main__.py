@@ -8,9 +8,7 @@ import tib
 from typing import (
     Iterable,
     Optional,
-    Sequence,
     Text,
-    Tuple,
     Union,
 )
 
@@ -31,6 +29,7 @@ APPLY_BINARIES = f"{L4T_PATH}/apply_binaries.sh"
 ROOTFS_PATH = f"{L4T_PATH}/rootfs"
 KERNEL_PY = os.path.join(tib.runner.THIS_DIR, "kernel.py")
 CHROOT_PY = os.path.join(tib.runner.THIS_DIR, "chroot.py")
+PATCH_EXTLINUX_PY = os.path.join(tib.runner.THIS_DIR, "patch_extlinux.py")
 IMAGE_OUT = f"{HOME}/sdcard.img"
 SOURCE_DIR = f"{L4T_PATH}/source"
 KERNEL_PATCH_DIR = "/tmp/kernel_patches"
@@ -47,11 +46,11 @@ Customize the kernel using menuconfig:
   tib nano --menuconfig
 """
 
-
+# TODO(mdegans): refactor this
 def main(
     scripts: Iterable[Path],
     chroot_scripts: Iterable[Path],
-    patches: Iterable[Path],
+    kernel_patches: Iterable[Path],
     enter_chroot: bool,
     menuconfig: bool,
     save_kconfig: Optional[str],
@@ -73,8 +72,8 @@ def main(
         chroot_scripts = tuple(chroot_scripts)
     else:
         chroot_scripts = tuple()
-    patches = tuple(patches)
-    for script in (*scripts, *chroot_scripts, *patches):
+    kernel_patches = tuple(kernel_patches)
+    for script in (*scripts, *chroot_scripts, *kernel_patches):
         # https://stackoverflow.com/questions/36077266/how-do-i-raise-a-filenotfounderror-properly
         if not os.path.isfile(script):
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), script)
@@ -102,7 +101,7 @@ def main(
         # the rootfs script
         (
             os.path.join(tib.runner.THIS_DIR, "download_rootfs.sh"),
-            (board, "--install-key" if patches or menuconfig else "--no-key"),
+            (board, "--install-key" if kernel_patches or menuconfig else "--no-key"),
         ),
         # the kernel download script
         (
@@ -124,15 +123,15 @@ def main(
         for script, args in scripts:
             runner.run_script(script, *args).check_returncode()
         # build a new kernel if necessary
-        if patches or menuconfig:
+        if kernel_patches or menuconfig:
             args = []
             # make patch dir and copy patches to Linux_for_Tegra/source/patches
-            if patches:
+            if kernel_patches:
                 # create patch dir
                 runner.run(("mkdir", "-m", "700", KERNEL_PATCH_DIR)).check_returncode()
-                inner_patches = []  # VM path to patches
+                inner_patches = []  # VM paths to patches
                 # copy all patches and append them to args
-                for patch in patches:
+                for patch in kernel_patches:
                     dest = f"{KERNEL_PATCH_DIR}/{os.path.basename(patch)}"
                     runner.transfer_to(patch, dest)
                     inner_patches.append(dest)
@@ -160,14 +159,21 @@ def main(
             if save_kconfig:
                 # we have a config that sucessfully built a kernel. Transfer it.
                 runner.transfer_from(kernel_config_out, save_kconfig)
-        # apply binaries in target overlay mode, so the kernel  and kernel
-        # modules we built get installed.
+        # apply nvidia software to the rootfs
         command = ["sudo", APPLY_BINARIES]
-        if patches or menuconfig:
-            # this is needed in case of a custom kernel
+        if kernel_patches or menuconfig:
+            # apply binaries in target overlay mode, so the kernel and kernel
+            # modules we built get installed.
             command.append("--target-overlay")
         logger.info("Applying binaries to rootfs.")
         runner.run(command).check_returncode()
+        # we need to patch extlinux.conf with the dtb if we've patched kernel
+        # TODO(mdegans): nx support
+        if kernel_patches and board == 'nano':
+            logger.info("patching extlinux.conf")
+            runner.run_script(PATCH_EXTLINUX_PY, ROOTFS_PATH, revision,
+                sudo=True,
+            ).check_returncode()
         # if needed, copy the chroot script to the filesystem
         if chroot_scripts:
             # TODO(mdegans): move to runner?
@@ -178,6 +184,7 @@ def main(
                 runner.run_script(
                     CHROOT_PY, ROOTFS_PATH, "--script", dest_script
                 ).check_returncode()
+        # if we've built a new kernel, patch extlinux.conf to use the dtb
         if enter_chroot:
             runner.run_script(CHROOT_PY, ROOTFS_PATH, "--enter")
         # assemble the command to run the image building script.
@@ -288,11 +295,19 @@ def cli_main():
     )
 
     ap.add_argument(
-        "--patches",
+        "--kernel-patches",
         default=tuple(),
         nargs="+",
         help="one or more **kernel** patches to apply at kernel_src.tbz2 root",
     )
+
+    # TODO(mdegans)
+    # ap.add_argument(
+    #     "--rootfs-patches",
+    #     default=tuple(),
+    #     nargs="+",
+    #     help="one or more **rootfs** patches to apply relative to /"
+    # )
 
     ap.add_argument(
         "--menuconfig",

@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-readonly NANO_URI="https://files.mdegans.dev/l4t-mirror/latest/nano/Tegra210_Linux_R32.4.4_aarch64.tbz2"
-readonly NANO_SHA="b7a24bc49b00887864841b237d06368af1244a6b5b3e0415ad7fe5019a233b8a6e991f38d8ef2473438481bd208f7ac16ace415602eca59cd3ab07282d0daf90"
-readonly NX_URI="https://files.mdegans.dev/l4t-mirror/latest/nx/Tegra186_Linux_R32.4.4_aarch64.tbz2"
-readonly NX_SHA="c1b6a6f57c3a41c8d2edc81ed96c8fbec81fdf41fb50c6eb059d89ed8e1bbcfd35b0645b6b4dd16ccb51f4ef32122b70ce34e643fb7d4520937f99561717a3c5"
+readonly NANO_URI="https://developer.nvidia.com/embedded/L4T/r32_Release_v5.0/T210/Tegra210_Linux_R32.5.0_aarch64.tbz2"
+readonly NANO_SHA="7af7e7373d1dcb48e6eceffb1ffe2d5f816ed8aea25ac32a1530a3d2762d4bd7b3313a4a7a37af24332e7f5bf6f8571fe1376d210c274133a3049312af011326"
+readonly NX_URI="https://developer.nvidia.com/embedded/L4T/r32_Release_v5.0/T186/Tegra186_Linux_R32.5.0_aarch64.tbz2"
+readonly NX_SHA="ec2073af9b9614bb54f8a3917f033337952a462464768e0eba29ef4fa6acf6dc0c8fc0e5b50968b7320ba278ddda4de6eba371b78dcd207b1a3429e8d4239564"
 
 function download() {
   case "$1" in
@@ -53,4 +53,4 @@ function main() {
   esac
 }
 
-main $1
+main "$1"
